@@ -20,5 +20,5 @@ if __name__=='__main__':
     plt.ylabel('Counts')
     plt.title('Data plot')
     plt.grid(True)
-    plt.savefig("data_plot.png")
+    plt.savefig("data_plot.png") #save plot
     plt.show()
