@@ -1,6 +1,6 @@
 All interested users are welcome to participate in this repository.
 
-To colaborate with our project, please  the following guidelines:
+To colaborate with our project, please consider the following guidelines:
 
 - First, open an issue with the problem detected or suggested improvement.
 
