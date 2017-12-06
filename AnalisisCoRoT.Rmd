@@ -23,11 +23,93 @@ tf_2k  <- data.frame(fn = freqn[1:2000], mod = abs(data.fft)[1:2000])
 ```
 
 ## Falta completar vuestras partes aqui
+## Descripción de los datos
+Las series temporales, o curvas de luz, son extraidas del [archivo publico de CoRoT](http://idoc-corot.ias.u-psud.fr/sitools/client-user/COROT_N2_PUBLIC_DATA/project-index.html), más concretamente, del apartado *sismo* de estrellas brillantes (Bright stars field)
 
+En dicha base de datos están publicados los archivos en extensión .fits clasificadas por el run y la cadencia en que los datos fueron adquiridos (32seg para short cadence y 512seg para long cadence). 
 
+El satélite CoRoT no solo está expuesto a las inclemencias del expacio exterior, si no que también sufre las consecuencias de atravesar la zona anómala Suratlántica (SAA). Esto se traduce en una serie de datos inválidos en las curvas de luz de los targets, debidamente identificados en el [*header*](http://idoc-corotn2-public.ias.u-psud.fr/jsp/doc/DescriptionN2v1.5.pdf;jsessionid=C1BF2BBE51B8CB861447CA057510722E) de la tabla de datos, en la columna de flags. 
+
+Al retirar estos datos, las series temporales presentarán huecos (gaps) que se han de rellenar con el fin de poder realizar un correcto análisis espectral. Es por ello que el *pipeline* de preparación de datos de CoRoT incorpora un método de interpolación llamado *Inpainting* para llenar dichos gaps, proporcionando las curvas de luz sin huecos, listas para su análisis. 
+
+Los archivos que utilizaremos serán los interpolados por *Inpainting* y en modo short cadence, de los cuales nos quedaremos con tan solo dos columnas:  
+
+**columna 1:** Tiempo (CoRoT JD-2657.16841759198) ; de dónde JD $\equiv$ Día Juliano 
+
+**columna 2:** Flujo ($e^{-}$/s)
+
+## Visualización de los datos
+Vamos a intentar visualizar los datos. Si tratamos de hacerlo directamente con las mediciones tomadas cada 32s, la cantidad de datos no nos permitirá apreciar ninguna información relevante:
+
+```{r MostrarDatosRaw, echo=FALSE}
+#Empezar el tiempo desde 0
+days = data$time-min(data$time)
+
+#Pasar tiempo de días a segudos
+sec = days*24*3600
+
+#Estandarizar couts
+counts = (data$counts-mean(data$counts))/sd(data$counts)
+
+data_corrected <- data.frame(days=days, counts=counts, sec=sec)
+
+grafico <- ggplot()+ geom_line(data=data_corrected,aes(x=sec,y=counts, color="counts per 32s", group=1))
+grafico
+```
+
+Vamos a resumir los datos en horas, mostrando la media en azúl y la media $\pm$ la desviación típica en rojo:
+
+```{r MostrarDatosHoras, echo=FALSE}
+#Función para agrupar los datos
+groupby <- function(x, y, step){
+  old_l <- length(x)
+  new_l <- as.integer(old_l/step)
+  print(old_l)
+  print(new_l)
+  flush.console()
+  x_mean <- double(new_l)
+  y_mean <- double(new_l)
+  y_std <- double(new_l)
+  y_min <- double(new_l)
+  y_max <- double(new_l)
+
+  for (i in 1:new_l){
+    pos_old <- i*step
+    x_mean[i] <- mean(x[(pos_old-step+1):pos_old])
+    y_mean[i] <- mean(y[(pos_old-step+1):pos_old])
+    y_std[i] <- sd(y[(pos_old-step+1):pos_old])
+    y_min[i] <- min(y[(pos_old-step+1):pos_old])
+    y_max[i] <- max(y[(pos_old-step+1):pos_old])
+   }
+  
+  return(list(x_mean=x_mean, y_mean=y_mean, y_std=y_std, y_min=y_min, y_max=y_max))
+}
+
+#Datos tomados cada 32s, vamos a agrupar cada hora aproximadamente
+time_scale = 3600
+data_hour <- groupby(data_corrected$sec, data_corrected$counts, 113)
+data_hour$x_mean = data_hour$x_mean/3600.0
+
+grafico <- ggplot() + geom_line(aes(x=data_hour$x_mean, y=data_hour$y_mean), color='blue')
+grafico <- grafico + geom_line(aes(x=data_hour$x_mean, y=data_hour$y_mean+data_hour$y_std), color='red')
+grafico <- grafico + geom_line(aes(x=data_hour$x_mean, y=data_hour$y_mean-data_hour$y_std), color='red')
+grafico
+```
+
+También podemos agrupar los datos por días y mostralos (media en azul, media $\pm$  desviación típica en rojo):
+
+```{r MostrarDatosDias, echo=FALSE}
+#Datos tomados cada 32s, vamos a agrupar cada hora aproximadamente
+data_day <- groupby(data_corrected$sec, data_corrected$counts, 2700)
+data_day$x_mean = data_day$x_mean/(24.0*3600.0)
+
+grafico <- ggplot() + geom_line(aes(x=data_day$x_mean, y=data_day$y_mean), color='blue')
+grafico <- grafico + geom_line(aes(x=data_day$x_mean, y=data_day$y_mean+data_day$y_std), color='red')
+grafico <- grafico + geom_line(aes(x=data_day$x_mean, y=data_day$y_mean-data_day$y_std), color='red')
+grafico
+```
 
 ## Estudio de la periodicidad de las seÃ±ales
-
 Finalmente, vamos a analizar la periodicidad de la serie temporal de datos. Como ya se ha indicado anteriormente, tras la interpolaciÃ³n, tenemos registro de datos cada 32 segundos, de forma que la tasa de muestreo de nuestra serie temporal es de 31'25 mHz.
 
 Una forma sencilla de analizar la periodicidad es calcular la autocorrelaciÃ³n normalizada de nuestra serie temporal, la cuÃ¡l se puede obtener a partir de la siguiente expresiÃ³n:
