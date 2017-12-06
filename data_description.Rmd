@@ -1,0 +1,29 @@
+---
+title: "Data Description."
+author: "Mariel"
+date: "5 de diciembre de 2017"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data Descritpion
+
+Las series temporales, o curvas de luz, son extraidas del [archivo publico de CoRoT](http://idoc-corot.ias.u-psud.fr/sitools/client-user/COROT_N2_PUBLIC_DATA/project-index.html), más concretamente, del apartado *sismo* de estrellas brillantes (Bright stars field)
+
+En dicha base de datos están publicados los archivos en extensión .fits clasificadas por el run y la cadencia en que los datos fueron adquiridos (32seg para short cadence y 512seg para long cadence). 
+
+El satélite CoRoT no solo está expuesto a las inclemencias del expacio exterior, si no que también sufre las consecuencias de atravesar la zona anómala Suratlántica (SAA). Esto se traduce en una serie de datos inválidos en las curvas de luz de los targets, debidamente identificados en el [*header*](http://idoc-corotn2-public.ias.u-psud.fr/jsp/doc/DescriptionN2v1.5.pdf;jsessionid=C1BF2BBE51B8CB861447CA057510722E) de la tabla de datos, en la columna de flags. 
+
+Al retirar estos datos, las series temporales presentarán huecos (gaps) que se han de rellenar con el fin de poder realizar un correcto análisis espectral. Es por ello que el *pipeline* de preparación de datos de CoRoT incorpora un método de interpolación llamado *Inpainting* para llenar dichos gaps, proporcionando las curvas de luz sin huecos, listas para su análisis. 
+
+Los archivos que utilizaremos serán los interpolados por *Inpainting* y en modo short cadence, de los cuales nos quedaremos con tan solo dos columnas:  
+
+**columna 1:** Tiempo (CoRoT JD-2657.16841759198) ; de dónde JD $\equiv$ Día Juliano 
+
+**columna 2:** Flujo ($e^{-}$/s)
+
