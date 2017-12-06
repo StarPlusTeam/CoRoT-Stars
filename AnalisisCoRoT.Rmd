@@ -1,0 +1,61 @@
+---
+title: "Analisis datos CoRoT"
+author: "Mariel Lares Martiz, Santiago López Tapia, Juan Manuel Martín Doñas"
+date: "4 de diciembre de 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+
+data.medidas <- read.table("HD174936in.dat")
+data <- data.frame(time=data.medidas$V1, counts=data.medidas$V2)
+
+data.corr <- acf(data$counts, lag.max = 500)
+xcross <- data.frame(lag=data.corr$lag, acf=data.corr$acf)
+
+data.fft <- fft(data$counts-mean(data$counts))
+freqn = seq(0,2*pi,length=dim(data)[1])
+
+tf_2k  <- data.frame(fn = freqn[1:2000], mod = abs(data.fft)[1:2000])
+```
+
+## Falta completar vuestras partes aqui
+
+
+
+## Estudio de la periodicidad de las señales
+
+Finalmente, vamos a analizar la periodicidad de la serie temporal de datos. Como ya se ha indicado anteriormente, tras la interpolación, tenemos registro de datos cada 32 segundos, de forma que la tasa de muestreo de nuestra serie temporal es de 31'25 mHz.
+
+Una forma sencilla de analizar la periodicidad es calcular la autocorrelación normalizada de nuestra serie temporal, la cuál se puede obtener a partir de la siguiente expresión:
+\begin{equation}
+R_{x} (k) = \frac{\sum_{n} (x(n) - m_{x})(x(n-k) - m_{x})}{\lVert x(n) \rVert_{2}^{2}}
+\end{equation}
+donde $x(n)$ es la serie temporal, $m_{x}$ su valor promedio y $\lVert x(n) \rVert_{2}^{2}$ la norma 2 al cuadrado. Si calculamos la autocorrelación normalizada de nuestra serie obtenemos la siguiente gráfica, donde se representan los primeros 500 coeficientes.
+
+```{r Autocorrelacion, echo=FALSE}
+grafico1 <- ggplot()+ geom_line(data=xcross,aes(x=lag,y=acf,color="Autocorrelación normalizada",group=1))
+grafico1 <- grafico1 + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+grafico1
+```
+
+Observamos como la autocorrelación resultante tiene una forma sinusoidal con amplitud variante. Los máximos de la autocorrelación nos indican el desfase temporal para el cuál las señales tienen mayor semejanza, y además se puede ver que la diferencia temporal entre los maximos se mantiene prácticamente constante, por lo que nos está indicando la periodicidad de nuestra señal. En este caso, los máximos se sitúan aproximadamente en torno a 82 muestras entre ellos, por lo que la periodicidad de nuestra serie es de 256 segundos o, lo que es igual, 3'90625 mHz.
+
+Otro procedimiento para determinar la periodicidad se obtiene a partir de la transformada de Fourier discreta (DFT) de la serie temporal, la cuál se calcula como se indica a continuación:
+\begin{equation}
+X(f)= \sum_{n=0}^{N-1} x(n) e^{- \frac{2 \pi i}{N}fn}
+\end{equation}
+donde N es el número total de muestras de la serie temporal, n es el índice temporal y f el índice en frencuencia, siendo estos dos últimos números enteros. Si representamos el módulo de la DFT de nuestra serie en función de la frecuencia angular normalizada $w = \frac{2 \pi}{N}f$ para los primeros valores de f (frecuencias bajas) obtenemos la siguiente representación:
+
+```{r Transformada de Fourier, echo=FALSE}
+grafico2 <- ggplot()+ geom_line(data=tf_2k,aes(x=fn,y=mod,color="Módulo DFT",group=1))
+grafico2 <- grafico2 + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+grafico2
+```
+
+En la gráfica anterior se observa un pico a la frecuencia normalizada $w_{max} = 0.076$. Teniendo en cuenta la frecuencia de muestreo $F_{s}$ de la señal, podemos calcular la frecuencia real correspondiente a partir de la expresión $F_{max} = \frac{F_{s} w}{2 \pi}$, obtieniendo un valor de 3.7733 mHz, valor aproximado al que hemos obtenido anteriormente.
+
+Por último, cabe decir que ambos métodos nos dan un valor aproximado de la periodicidad. En el primer caso, tenemos una resolucion determinada por la tasa de muestreo que estamos empleando. En el segundo caso, además de esta limitación, estamos considerando solamente el valor de pico de la DFT, lo que nos daría la frecuencia predominante, pero tenemos tambien contenido espectral en otras frecuencias no despreciable, lo cuál modificará la periodicidad de la señal. Aun así, estos dos métodos nos permiten una buena aproximación de la periodicidad de nuestra señal y demuestran que nuestros datos presentan esta periodicidad.
