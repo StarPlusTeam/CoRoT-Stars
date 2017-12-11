@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(ggplot2)
 
-data.medidas <- read.table("HD174936in.dat")
+data.medidas <- read.table("Data/HD174936in.dat")
 data <- data.frame(time=data.medidas$V1, counts=data.medidas$V2)
 
 data.corr <- acf(data$counts, lag.max = 500)
