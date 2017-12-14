@@ -1,5 +1,5 @@
 ---
-title: "Analisis datos CoRoT"
+title: "Análisis datos CoRoT"
 author: "Mariel Lares Martiz, Santiago López Tapia, Juan Manuel Martín Doñas"
 date: "4 de diciembre de 2017"
 output: html_document
@@ -22,13 +22,12 @@ freqn = seq(0,2*pi,length=dim(data)[1])
 tf_2k  <- data.frame(fn = freqn[1:2000], mod = abs(data.fft)[1:2000])
 ```
 
-## Falta completar vuestras partes aqui
 ## Descripción de los datos
-Las series temporales, o curvas de luz, son extraidas del [archivo publico de CoRoT](http://idoc-corot.ias.u-psud.fr/sitools/client-user/COROT_N2_PUBLIC_DATA/project-index.html), más concretamente, del apartado *sismo* de estrellas brillantes (Bright stars field)
+Las series temporales, o curvas de luz, son extraídas del [archivo público de CoRoT](http://idoc-corot.ias.u-psud.fr/sitools/client-user/COROT_N2_PUBLIC_DATA/project-index.html), más concretamente, del apartado *sismo* de estrellas brillantes (Bright stars field)
 
 En dicha base de datos están publicados los archivos en extensión .fits clasificadas por el run y la cadencia en que los datos fueron adquiridos (32seg para short cadence y 512seg para long cadence). 
 
-El satélite CoRoT no solo está expuesto a las inclemencias del expacio exterior, si no que también sufre las consecuencias de atravesar la zona anómala Suratlántica (SAA). Esto se traduce en una serie de datos inválidos en las curvas de luz de los targets, debidamente identificados en el [*header*](http://idoc-corotn2-public.ias.u-psud.fr/jsp/doc/DescriptionN2v1.5.pdf;jsessionid=C1BF2BBE51B8CB861447CA057510722E) de la tabla de datos, en la columna de flags. 
+El satélite CoRoT no solo está expuesto a las inclemencias del espacio exterior, sino que también sufre las consecuencias de atravesar la zona anómala Suratlántica (SAA). Esto se traduce en una serie de datos inválidos en las curvas de luz de los targets, debidamente identificados en el [*header*](http://idoc-corotn2-public.ias.u-psud.fr/jsp/doc/DescriptionN2v1.5.pdf;jsessionid=C1BF2BBE51B8CB861447CA057510722E) de la tabla de datos, en la columna de flags. 
 
 Al retirar estos datos, las series temporales presentarán huecos (gaps) que se han de rellenar con el fin de poder realizar un correcto análisis espectral. Es por ello que el *pipeline* de preparación de datos de CoRoT incorpora un método de interpolación llamado *Inpainting* para llenar dichos gaps, proporcionando las curvas de luz sin huecos, listas para su análisis. 
 
@@ -96,7 +95,7 @@ grafico <- grafico + geom_line(aes(x=data_hour$x_mean, y=data_hour$y_mean-data_h
 grafico
 ```
 
-También podemos agrupar los datos por días y mostralos (media en azul, media $\pm$  desviación típica en rojo):
+También podemos agrupar los datos por días y mostrarlos (media en azul, media $\pm$  desviación típica en rojo):
 
 ```{r MostrarDatosDias, echo=FALSE}
 #Datos tomados cada 32s, vamos a agrupar cada hora aproximadamente
@@ -141,3 +140,4 @@ grafico2
 En la gráfica anterior se observa un pico a la frecuencia normalizada $w_{max} = 0.076$. Teniendo en cuenta la frecuencia de muestreo $F_{s}$ de la señal, podemos calcular la frecuencia real correspondiente a partir de la expresión $F_{max} = \frac{F_{s} w}{2 \pi}$, obteniendo un valor de 3.7733 mHz, valor aproximado al que hemos obtenido anteriormente.
 
 Por último, cabe decir que ambos métodos nos dan un valor aproximado de la periodicidad. En el primer caso, tenemos una resolución determinada por la tasa de muestreo que estamos empleando. En el segundo caso, además de esta limitación, estamos considerando solamente el valor de pico de la DFT, lo que nos daría la frecuencia predominante, pero tenemos también contenido espectral en otras frecuencias no despreciable, lo cual modificaría la periodicidad de la señal. Aun así, estos dos métodos nos permiten una buena aproximación de la periodicidad de nuestra señal y demuestran que nuestros datos presentan esta periodicidad.
+
