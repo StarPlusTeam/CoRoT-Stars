@@ -1,28 +1,30 @@
 Ôªø# CoRoT-Stars
 
-An√°lisis de Fourier de estrellas de CoRoT.
+An·lisis de Fourier de estrellas de CoRoT.
 
-En este proyecto se plantea realizar un an√°lisis con t√©cnicas de procesado de se√±al como la transformada de Fourier a un conjunto de series temporales.
+En este proyecto se plantea realizar un an·lisis con tÈcnicas de procesado de seÒal como la transformada de Fourier a un conjunto de series temporales.
 
-El objetivo es realizar un an√°lisis en frecuencia de estas se√±ales para obtener diferentes caracter√≠sticas.
+El objetivo es realizar un an·lisis en frecuencia de estas se√±ales para obtener diferentes caracterÌsticas.
 
-Los datos que se van a emplear son los datos p√∫blicos del CoRoT.
+Los datos que se van a emplear son los datos p˙blicos del CoRoT.
 
 http://idoc-corotn2-public.ias.u-psud.fr/invoquerSva.do?sva=browseGraph
 
 Los datos se proporcionan en el repositorio del proyecto.
 
-Este proyecto est√° siendo realizado por el grupo StarPlusTeam, compuesto por los siguientes miembros:
+El script de Rmarkdown AnalisisCoRoT.Rmd est· tambiÈn diponible en Rpubs: http://rpubs.com/silt99/anCoRoT
+
+Este proyecto est· siendo realizado por el grupo StarPlusTeam, compuesto por los siguientes miembros:
 
 * Mariel Lares Martiz
 
 https://github.com/zitraa
 
-* Santiago L√≥pez Tapia
+* Santiago LÛpez Tapia
 
 https://github.com/silt99
 
-* Juan Manuel Mart√≠n Do√±as
+* Juan Manuel MartÌn DoÒas
 
 https://github.com/mdjuamart
 
